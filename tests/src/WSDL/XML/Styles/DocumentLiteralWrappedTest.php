@@ -200,6 +200,36 @@ class DocumentLiteralWrappedTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function shouldParseParameterWithArrayOfWrapper()
+    {
+        //given
+        $parameter = ParameterFactory::createParameterObjectWithArrayOfWrapper('method');
+
+        //when
+        $types = $this->_documentLiteralWrapped->typeParameters($parameter);
+
+        //then
+        $type = $types[0];
+        $this->assertEquals('method', $type->getName());
+        $this->assertEquals(array(array('type' => 'element', 'value' => 'ns:ListOfAgents', 'name' => 'listOfAgents')), $type->getElementAttributes());
+        $this->assertEquals('ListOfAgents', $type->getComplex()->getName());
+        $this->assertEquals(array(
+                array('type' => 'type', 'value' => 'ns:ArrayOfAgents', 'name' => 'agents'),
+                array('type' => 'type', 'value' => 'xsd:int', 'name' => 'id')
+        ), $type->getComplex()->getElementAttributes());
+        $this->assertEquals('ArrayOfAgents', $type->getComplex()->getComplex()->getName());
+        $this->assertEquals('ns:MocksMockUserWrapper[]', $type->getComplex()->getComplex()->getArrayType());
+        $this->assertEquals('MocksMockUserWrapper', $type->getComplex()->getComplex()->getComplex()->getName());
+        $this->assertEquals(array(
+                array('type' => 'type', 'value' => 'xsd:int', 'name' => 'id'),
+                array('type' => 'type', 'value' => 'xsd:string', 'name' => 'name'),
+                array('type' => 'type', 'value' => 'xsd:int', 'name' => 'age')
+        ), $type->getComplex()->getComplex()->getComplex()->getElementAttributes());
+    }
+
+    /**
+     * @test
+     */
     public function shouldParseReturnArrayWithSimpleType()
     {
         //given

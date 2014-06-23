@@ -46,6 +46,11 @@ class ParameterFactory
         return new MethodParser($methodName, $doc);
     }
 
+    public static function createParameterForWrapperArray($methodName = '') {
+        $doc = '/**@param wrapper[] $agentList @className=\Mocks\MockUserWrapper*/';
+        return new MethodParser($methodName, $doc);
+    }
+
     public static function createReturnForSimpleArray($methodName = '')
     {
         $doc = '/**@return string[] $names*/';
