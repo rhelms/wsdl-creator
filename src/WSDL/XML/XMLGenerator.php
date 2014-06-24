@@ -149,7 +149,7 @@ class XMLGenerator
             if (!$this->_bindingStyle instanceof DocumentLiteralWrapped) {
                 $this->_generateArray($parameter, $schemaElement);
             } else {
-                $this->_generateTypedArray($parameter, $schemaElement);
+                $this->_generateTypedArrayUsingSeq($parameter, $schemaElement);
             }
         }
         if ($parameter instanceof TypesElement) {
@@ -165,13 +165,17 @@ class XMLGenerator
             return;
         }
 
+        // use camel case form for element name
+        $type = $name;
+        $name[0] = strtolower($name);
+
         $element = $this->createElementWithAttributes('xsd:element', array(
             'name' => $name,
             'nillable' => 'true',
-            'type' => 'ns:' . $name
+            'type' => 'ns:' . $type
         ));
         $complexTypeElement = $this->createElementWithAttributes('xsd:complexType', array(
-            'name' => $name
+            'name' => $type
         ));
         $sequenceElement = $this->_createElement('xsd:sequence');
 
@@ -203,10 +207,18 @@ class XMLGenerator
             return;
         }
 
+        // sequence name is name of element, not the list. Use camel case
+        $complex = $parameter->getComplex();
+        if ($complex) {
+            $arrayElementName = $complex->getName();
+            $arrayElementName[0] = strtolower($arrayElementName[0]);
+        }
+
         $complexTypeElement = $this->createElementWithAttributes('xsd:complexType', array('name' => $name));
         $complexContentElement = $this->_createElement('xsd:complexContent');
         $restrictionElement = $this->createElementWithAttributes('xsd:restriction', array('base' => 'soapenc:Array'));
         $attributeElement = $this->createElementWithAttributes('xsd:attribute', array(
+            'name' => $arrayElementName,
             'ref' => 'soapenc:arrayType',
             'arrayType' => $type
         ));
@@ -215,12 +227,12 @@ class XMLGenerator
         $complexTypeElement->appendChild($complexContentElement);
         $schemaElement->appendChild($complexTypeElement);
 
-        if ($parameter->getComplex()) {
+        if ($complex) {
             $this->_generateComplexType($parameter->getComplex(), $schemaElement);
         }
     }
 
-    private function _generateTypedArray(TypesComplex $parameter, $schemaElement)
+    private function _generateTypedArrayUsingSeq(TypesComplex $parameter, $schemaElement)
     {
         $name = $parameter->getName();
         $type = $parameter->getArrayType();
@@ -228,6 +240,13 @@ class XMLGenerator
 
         if (self::isAlreadyGenerated($name)) {
             return;
+        }
+
+        // sequence name is name of element, not the list. Use camel case
+        $complex = $parameter->getComplex();
+        if ($complex) {
+            $typeName = $complex->getName();
+            $typeName[0] = strtolower($typeName[0]);
         }
 
         $complexTypeElement = $this->createElementWithAttributes('xsd:complexType', array('name' => $name));
@@ -243,7 +262,7 @@ class XMLGenerator
         $complexTypeElement->appendChild($sequence);
         $schemaElement->appendChild($complexTypeElement);
 
-        if ($parameter->getComplex()) {
+        if ($complex) {
             $this->_generateComplexType($parameter->getComplex(), $schemaElement);
         }
     }

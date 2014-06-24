@@ -105,7 +105,7 @@ class WrapperSoapServer
     {
         //FIXME incorrect response structure
         $names = array();
-        foreach ($employeesList as $employee) {
+        foreach ($employeesList->employee as $employee) {
             $names[] = $employee->department;
         }
         return implode(', ', $names);

@@ -6,6 +6,7 @@ use ReflectionMethod;
 use stdClass;
 use WSDL\Parser\MethodParser;
 use WSDL\Types\Type;
+use WSDL\Utilities\Strings;
 
 /**
  * Provide a wrapper for
@@ -49,11 +50,19 @@ class DocumentLiteralWrapper
     {
         $args = isset($args[0]) ? $args[0] : new stdClass();
         $newArgs = array();
+        foreach ($parameters as $parameter) {
         $parameterNames = array_map(function (Type $parameter) {
             return $parameter->getName();
         }, $parameters);
         foreach ($parameterNames as $name) {
+            $name = $parameter->getName();
             if (isset($args->$name)) {
+                if ($parameter instanceof \WSDL\Types\Arrays && $parameter->getComplexType() == null) {
+                    $arrayHolder = Strings::depluralize($name);
+                    $newArgs[] = $args->$name->$arrayHolder;
+                } else {
+                    $newArgs[] = $args->$name;
+                }
                 $newArgs[] = $args->$name;
             }
         }

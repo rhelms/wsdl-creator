@@ -105,4 +105,89 @@ class MockClass
     {
         $a = $a + 1;
     }
+
+    /**
+     * @param int $max
+     * @return string[] $count
+     */
+    public function countTo($max) {
+        $array = array();
+        for ($i = 0; $i < $max; $i++) {
+            $array[] = 'Number: ' . ($i + 1);
+        }
+        return $array;
+    }
+
+    /**
+     * @return wrapper[] $employees @className=\Mocks\Employee
+     */
+    public function getEmployees()
+    {
+        $employees = array();
+        $departments = array('IT', 'Logistics', 'Management');
+        for ($i = 0; $i < 3; $i++) {
+            $employee = new Employee();
+            $employee->id = 2 + $i + 1;
+            $employee->department = $departments[$i];
+            $employees[] = $employee;
+        }
+        return $employees;
+    }
+
+    /**
+     * @return object[] $employeesList @(wrapper[] $agents @className=\Mocks\Agent)
+     */
+    public function getEmployeesWithAgents()
+    {
+        $obj = array();
+        $obj[0] = new stdClass();
+        $obj[0]->agents[0] = new Agent();
+        $obj[0]->agents[0]->name = 'agent1';
+        $obj[0]->agents[1] = new Agent();
+        $obj[0]->agents[1]->name = 'agent2';
+        $obj[1] = new stdClass();
+        $obj[1]->agents[0] = new Agent();
+        $obj[1]->agents[0]->name = 'agent3';
+        $obj[1]->agents[1] = new Agent();
+        $obj[1]->agents[1]->name = 'agent4';
+        return $obj;
+    }
+}
+
+class Agent
+{
+    /**
+     * @type string
+     */
+    public $name;
+    /**
+     * @type int
+     */
+    public $number;
+
+    public static function fromArray($array) {
+        $obj = new Agent();
+        $obj->name = $array['name'];
+        $obj->number = $array['number'];
+        return $obj;
+    }
+}
+
+class Employee
+{
+    /**
+     * @type int
+     */
+    public $id;
+    /**
+     * @type string
+     */
+    public $department;
+
+    public static function fromArray($array) {
+        $obj = new Employee();
+        $obj->id = $array['id'];
+        $obj->department = $array['department'];
+        return $obj;
+    }
 }

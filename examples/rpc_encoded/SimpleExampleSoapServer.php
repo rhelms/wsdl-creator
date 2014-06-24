@@ -34,7 +34,7 @@ class SimpleSoapServer
      */
     public function getNameWithAge($name, $age)
     {
-        return 'Your name is: ' . $name . ' and you have ' . $age . ' years old';
+        return 'Your name is: ' . $name . ' and you are ' . $age . ' years old';
     }
 
     /**

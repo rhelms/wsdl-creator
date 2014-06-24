@@ -58,4 +58,81 @@ class DocumentLiteralWrapperTest extends PHPUnit_Framework_TestCase
         //then 3
         $this->assertNull($result);
     }
+
+    /**
+     * @test
+     */
+    public function shouldHandleSimpleArray()
+    {
+        $arg = new stdClass();
+        $arg->max = 2;
+        $result = $this->_handler->countTo($arg);
+
+        $this->assertTrue(isset($result->count));
+        $this->assertEquals($result->count, $this->_unwrapped->countTo(2));
+
+        $expected = new stdClass();
+        $expected->count = array('Number: 1', 'Number: 2');
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldHandleWrapperArray()
+    {
+        $result = $this->_handler->getEmployees();
+
+        $expected = (object)array(
+            'employees' => array(
+                \Mocks\Employee::fromArray(array('id' => 3, 'department' => 'IT')),
+                \Mocks\Employee::fromArray(array('id' => 4, 'department' => 'Logistics')),
+                \Mocks\Employee::fromArray(array('id' => 5, 'department' => 'Management'))
+        ));
+
+        $this->assertEquals($expected, $result);
+
+        $this->assertEquals($result->employees, $this->_unwrapped->getEmployees());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldHandleObjectArray()
+    {
+        $result = $this->_handler->getEmployeesWithAgents();
+
+        $expected = (object)array(
+            'employeesList' => array(
+                (object)array(
+                    'agents' => array(
+                        \Mocks\Agent::fromArray(array(
+                            'name' => 'agent1',
+                            'number' => null
+                        )),
+                        \Mocks\Agent::fromArray(array(
+                            'name' => 'agent2',
+                            'number' => null
+                        ))
+                    )
+                ),
+                (object)array(
+                    'agents' => array(
+                        \Mocks\Agent::fromArray(array(
+                            'name' => 'agent3',
+                            'number' => null
+                        )),
+                        \Mocks\Agent::fromArray(array(
+                            'name' => 'agent4',
+                            'number' => null
+                        ))
+                    )
+                )
+            )
+        );
+
+        $this->assertEquals($expected, $result);
+
+        $this->assertEquals($result->employeesList, $this->_unwrapped->getEmployeesWithAgents());
+    }
 }
