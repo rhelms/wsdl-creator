@@ -66,9 +66,21 @@ class DocumentLiteralWrapped extends Style
     {
         list($type, $value) = $this->_prepareTypeAndValue($parameter);
         $element->setElementAttributes($type, $value, $parameter->getName());
+        $setElementAttribute = true;
         if (!TypeHelper::isSimple($parameter)) {
             $complexType = $this->_generateComplexType($parameter);
             $element->setComplex($complexType);
+            if ($value == 'ns:' . $complexType->getName() && 0) {
+                // override element attriute type to replace value (ArrayOf..) with actual array type
+                $element->setElementAttributes($type, $complexType->getArrayType(), $parameter->getName());
+                $setElementAttribute = false;
+                $element->setComplex($complexType->getComplex());
+            } else {
+                $element->setComplex($complexType);
+            }
+        }
+        if ($setElementAttribute) {
+            $element->setElementAttributes($type, $value, $parameter->getName());
         }
     }
 }

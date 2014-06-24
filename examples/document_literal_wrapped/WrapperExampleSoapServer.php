@@ -61,7 +61,7 @@ class WrapperSoapServer
      */
     public function getUserString($user, $id)
     {
-        return '[#' . $id . ']Your name is: ' . $user->name . ' and you have ' . $user->age . ' years old with payment ' . $user->payment;
+        return '[#' . $id . ']Your name is: ' . $user->name . ' and you are ' . $user->age . ' years old with payment ' . $user->payment;
     }
 
     /**
@@ -72,7 +72,6 @@ class WrapperSoapServer
      */
     public function getUser($name, $age, $payment)
     {
-        //FIXME incorrect response structure
         $user = new User();
         $user->name = $name;
         $user->age = $age;
@@ -85,7 +84,6 @@ class WrapperSoapServer
      */
     public function getEmployees()
     {
-        //FIXME incorrect response structure
         $employees = array();
         $departments = array('IT', 'Logistics', 'Management');
         for ($i = 0; $i < 3; $i++) {
@@ -103,9 +101,8 @@ class WrapperSoapServer
      */
     public function getEmployeesDepartments($employeesList)
     {
-        //FIXME incorrect response structure
         $names = array();
-        foreach ($employeesList->employee as $employee) {
+        foreach ($employeesList as $employee) {
             $names[] = $employee->department;
         }
         return implode(', ', $names);

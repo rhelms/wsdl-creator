@@ -146,10 +146,10 @@ class XMLGenerator
     private function _generateComplexType($parameter, $schemaElement)
     {
         if ($parameter instanceof TypesComplex) {
-            if (!$this->_bindingStyle instanceof DocumentLiteralWrapped) {
-                $this->_generateArray($parameter, $schemaElement);
-            } else {
+            if ($this->_bindingStyle instanceof DocumentLiteralWrapped) {
                 $this->_generateTypedArrayUsingSeq($parameter, $schemaElement);
+            } else {
+                $this->_generateArray($parameter, $schemaElement);
             }
         }
         if ($parameter instanceof TypesElement) {
@@ -180,16 +180,33 @@ class XMLGenerator
         $sequenceElement = $this->_createElement('xsd:sequence');
 
         $types = $parameter->getElementAttributes();
+        $parameterComplex = $parameter->getComplex();
+        $generateChildComplex = false;
         foreach ($types as $complexType) {
-            $elementPartElement = $this->createElementWithAttributes('xsd:element', array(
-                'name' => $complexType['name'],
-                $complexType['type'] => $complexType['value']
-            ));
+            // check if element is the array here, and replace if it is
+            if ($parameterComplex && $parameterComplex instanceof TypesComplex && $complexType['value'] == 'ns:' . $parameterComplex->getName()) {
+                $elementPartElement = $this->createElementWithAttributes('xsd:element', array(
+                    'minOccurs' => 0,
+                    'maxOccurs' => 'unbounded',
+                    'name' => $complexType['name'],
+                    'nillable' => 'true',
+                    'type' => str_replace('[]', '', $parameterComplex->getArrayType())
+                ));
+                $generateChildComplex = true;
+            } else {
+                $elementPartElement = $this->createElementWithAttributes('xsd:element', array(
+                    'name' => $complexType['name'],
+                    $complexType['type'] => $complexType['value']
+                ));
+            }
             $sequenceElement->appendChild($elementPartElement);
         }
 
-        if ($parameter->getComplex()) {
-            $this->_generateComplexType($parameter->getComplex(), $schemaElement);
+        if ($parameterComplex && $generateChildComplex) {
+            $parameterComplex = $parameterComplex->getComplex();
+        }
+        if ($parameterComplex) {
+            $this->_generateComplexType($parameterComplex, $schemaElement);
         }
 
         $complexTypeElement->appendChild($sequenceElement);
@@ -212,6 +229,8 @@ class XMLGenerator
         if ($complex) {
             $arrayElementName = $complex->getName();
             $arrayElementName[0] = strtolower($arrayElementName[0]);
+        } else {
+            $arrayElementName = $name;
         }
 
         $complexTypeElement = $this->createElementWithAttributes('xsd:complexType', array('name' => $name));
